@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MineStore - Loja de Ranks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .server-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #ccc;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .server-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            text-align: center;
+            color: white;
+        }
+
+        .info-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #4CAF50;
+        }
+
+        .ranks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .rank-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rank-color);
+            opacity: 0.8;
+        }
+
+        .rank-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            border-color: var(--rank-color);
+        }
+
+        .vip { --rank-color: #4CAF50; }
+        .vip-plus { --rank-color: #2196F3; }
+        .mvp { --rank-color: #FF9800; }
+        .mvp-plus { --rank-color: #9C27B0; }
+        .legend { --rank-color: #FFD700; }
+
+        .rank-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            background: var(--rank-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .rank-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--rank-color);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rank-price {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .rank-price .currency {
+            font-size: 0.7em;
+            color: #666;
+        }
+
+        .benefits {
+            text-align: left;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+        }
+
+        .benefits h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .benefits ul {
+            list-style: none;
+        }
+
+        .benefits li {
+            padding: 5px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .benefits li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rank-color);
+            font-weight: bold;
+        }
+
+        .buy-button {
+            background: var(--rank-color);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .buy-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .payment-methods {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .payment-methods h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .payment-icon {
+            width: 60px;
+            height: 40px;
+            background: #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .payment-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .pix { background: #4CAF50; }
+        .card { background: #2196F3; }
+        .paypal { background: #0070ba; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .ranks-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .server-info {
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .purchase-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="server-logo">MC</div>
+            <h1>MineStore</h1>
+            <p class="subtitle">Loja Oficial de Ranks do Servidor</p>
+            <div class="server-info">
+                <div class="info-item">
+                    <div class="info-label">IP do Servidor</div>
+                    <div class="info-value">play.meuservidor.com</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Jogadores Online</div>
+                    <div class="info-value">127/200</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Versão</div>
+                    <div class="info-value">1.20.x</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="ranks-grid">
+            <div class="rank-card vip">
+                <div class="rank-icon">👑</div>
+                <h3 class="rank-name">VIP</h3>
+                <div class="rank-price">R$ <span>15</span><span class="currency">,00</span></div>
+                <div class="benefits">
+                    <h4>Benefícios Inclusos:</h4>
+                    <ul>
+                        <li>Chat colorido</li>
+                        <li>Kit VIP diário</li>
+                        <li>2 homes extras</li>
+                        <li>Prioridade no login</li>
+                        <li>Acesso a /fly em areas liberadas</li>
+                    </ul>
+                </div>
+                <button class="buy-button" onclick="openPurchaseModal('VIP', 15)">Comprar Agora</button>
+            </div>
+
+            <div class="rank-card vip-plus">
+                <div class="rank-icon">💎</div>
+                <h3 class="rank-name">VIP+</h3>
+                <div class="rank-price">R$ <span>30</span><span class="currency">,00</span></div>
+                <div class="benefits">
+                    <h4>Todos os benefícios VIP +:</h4>
+                    <ul>
+                        <li>Kit VIP+ diário</li>
+                        <li>5 homes extras</li>
+                        <li>/back ilimitado</li>
+                        <li>Acesso ao /tp</li>
+                        <li>Proteção anti-grief</li>
+                    </ul>
+                </div>
+                <button class="buy-button" onclick="openPurchaseModal('VIP+', 30)">Comprar Agora</button>
+            </div>
+
+            <div class="rank-card mvp">
+                <div class="rank-icon">🏆</div>
+                <h3 class="rank-name">MVP</h3>
+                <div class="rank-price">R$ <span>50</span><span class="currency">,00</span></div>
+                <div class="benefits">
+                    <h4>Todos os benefícios VIP+ +:</h4>
+                    <ul>
+                        <li>Kit MVP diário</li>
+                        <li>10 homes</li>
+                        <li>Comandos de moderação básicos</li>
+                        <li>/god em areas PvP off</li>
+                        <li>Acesso a kits exclusivos</li>
+                    </ul>
+                </div>
+                <button class="buy-button" onclick="openPurchaseModal('MVP', 50)">Comprar Agora</button>
+            </div>
+
+            <div class="rank-card mvp-plus">
+                <div class="rank-icon">⭐</div>
+                <h3 class="rank-name">MVP+</h3>
+                <div class="rank-price">R$ <span>75</span><span class="currency">,00</span></div>
+                <div class="benefits">
+                    <h4>Todos os benefícios MVP +:</h4>
+                    <ul>
+                        <li>Kit MVP+ diário</li>
+                        <li>15 homes</li>
+                        <li>/vanish</li>
+                        <li>Acesso a area VIP exclusiva</li>
+                        <li>Comando /nick</li>
+                    </ul>
+                </div>
+                <button class="buy-button" onclick="openPurchaseModal('MVP+', 75)">Comprar Agora</button>
+            </div>
+
+            <div class="rank-card legend">
+                <div class="rank-icon">🌟</div>
+                <h3 class="rank-name">Legend</h3>
+                <div class="rank-price">R$ <span>100</span><span class="currency">,00</span></div>
+                <div class="benefits">
+                    <h4>Todos os benefícios MVP+ +:</h4>
+                    <ul>
+                        <li>Kit Legend diário</li>
+                        <li>Homes ilimitadas</li>
+                        <li>Todos os comandos VIP</li>
+                        <li>Skin personalizada</li>
+                        <li>Prefixo exclusivo dourado</li>
+                    </ul>
+                </div>
+                <button class="buy-button" onclick="openPurchaseModal('Legend', 100)">Comprar Agora</button>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <h3>Métodos de Pagamento Aceitos</h3>
+            <div class="payment-icons">
+                <div class="payment-icon pix">PIX</div>
+                <div class="payment-icon card">Cartão</div>
+                <div class="payment-icon paypal">PayPal</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Compra -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePurchaseModal()">&times;</span>
+            <h2>Finalizar Compra</h2>
+            <div id="selectedRank"></div>
+            <form class="purchase-form" onsubmit="processPurchase(event)">
+                <div class="form-group">
+                    <label for="playerName">Nome do Jogador (Minecraft):</label>
+                    <input type="text" id="playerName" required placeholder="Digite seu nick exato do Minecraft">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod">Método de Pagamento:</label>
+                    <select id="paymentMethod" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                        <option value="pix">PIX (Aprovação instantânea)</option>
+                        <option value="card">Cartão de Crédito</option>
+                        <option value="paypal">PayPal</option>
+                    </select>
+                </div>
+                <button type="submit" class="buy-button" style="width: 100%; margin-top: 20px;">
+                    Prosseguir com Pagamento
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedRankName = '';
+        let selectedRankPrice = 0;
+
+        function openPurchaseModal(rankName, price) {
+            selectedRankName = rankName;
+            selectedRankPrice = price;
+            
+            document.getElementById('selectedRank').innerHTML = `
+                <h3>Rank: ${rankName}</h3>
+                <p><strong>Preço: R$ ${price},00</strong></p>
+            `;
+            
+            document.getElementById('purchaseModal').style.display = 'block';
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+        }
+
+        function processPurchase(event) {
+            event.preventDefault();
+            
+            const playerName = document.getElementById('playerName').value;
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // Aqui você integraria com seu sistema de pagamento
+            alert(`Compra iniciada!\n\nRank: ${selectedRankName}\nJogador: ${playerName}\nEmail: ${email}\nValor: R$ ${selectedRankPrice},00\n\nVocê será redirecionado para o pagamento.`);
+            
+            closePurchaseModal();
+        }
+
+        // Fecha o modal se clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('purchaseModal');
+            if (event.target == modal) {
+                closePurchaseModal();
+            }
+        }
+
+        // Simula atualização de jogadores online
+        function updateOnlineCount() {
+            const count = Math.floor(Math.random() * 50) + 100;
+            document.querySelector('.info-value').textContent = `${count}/200`;
+        }
+
+        setInterval(updateOnlineCount, 30000); // Atualiza a cada 30 segundos
+    </script>
+</body>
+</html>
